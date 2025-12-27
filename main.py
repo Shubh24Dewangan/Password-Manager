@@ -71,7 +71,7 @@ class PasswordManager:
             if choice == '1':
                 while True:
                     self.addCredential()
-                    ask = input('Type {y} to confirm deleting more else {n}: ')
+                    ask = input('Type {y} to confirm adding more else {n}: ')
                     if ask not in 'yY':
                         break
             elif choice == '2':
