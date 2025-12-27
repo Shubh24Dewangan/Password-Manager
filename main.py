@@ -70,7 +70,7 @@ class PasswordManager:
             choice = input('Enter your Choice: ').strip()
             if choice == '1':
                 while True:
-                    self.addPassword()
+                    self.addCredential()
                     ask = input('Type {y} to confirm deleting more else {n}: ')
                     if ask not in 'yY':
                         break
