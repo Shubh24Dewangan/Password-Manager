@@ -40,7 +40,7 @@ class PasswordManager:
         login_user = input("Login username (optional): ").strip()
         pswd = input("Password: ").strip()
         encrypted = encrypt_password(pswd)
-        self.db.add_vault(self.user[0], site, login_user, encrypted)
+        self.db.add_vault(self.user[0], site, encrypted, login_user)
         print("✅ Password saved!")
 
     def viewCredential(self):
