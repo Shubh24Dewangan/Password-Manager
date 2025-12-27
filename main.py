@@ -7,19 +7,34 @@ class PasswordManager:
         self.user = None
 
     def signIn(self):
-        username = input("Enter your Username: ").strip()
-        check = self.db.get_user(username)
-        if check:
+        while True:
+            username = input("Enter your Username: ").strip()
+            if username:
+                break
+
+            print('Your username should not be empty!')
+
+        if self.db.get_user(username):
             print('This user already exists!')
             return False
-        
-        master_pass = input('Create your Master Password: ')
-        self.db.add_user(username, hash_password(master_pass))
-        print('Account has been created!!!')
+        #add a feature to generate a master password
+        master_pass = input('Create a strong Master Password: ')
+        try: 
+            self.db.add_user(username, hash_password(master_pass))
+            print('Account has been created!!')
+            return True
+        except Exception as e:
+            print('Database error. Try again later...')
+            return False
 
     def logIn(self):
 
-        username = input('Enter your Username: ').strip()
+        while True:
+            username = input("Enter your Username: ").strip()
+            if not username:
+                print('Your username should not be empty!')
+            else:
+                break
         user = self.db.get_user(username)
         if not user:
             print(f'User with username {username} does not exists!')
@@ -30,37 +45,72 @@ class PasswordManager:
             print('Wrong Password!')
             return False
         
-        self.user = user
-        print("You're successfully Logged In!")
-        return True
+        try:
+            self.user = user
+            print("You're successfully Logged In!")
+            return True
+        except Exception as e:
+            print('Database error. Try Again later.')
+            return False
     
     def addCredential(self):
+        while True:
+            site = input("Enter Site name/ url: ").strip()
+            login_user = input("Login username (optional): ").strip()
+            pswd = input("Password: ").strip()
+            if len(site) < 4 or len(site) > 100 or len(pswd) < 5:
+                print('The length of site name/ url should [4-100] and password should be above 5.\nTry Agian!')
+            else:
+                break
 
-        site = input("Enter Site name: ").strip()
-        login_user = input("Login username (optional): ").strip()
-        pswd = input("Password: ").strip()
-        encrypted = encrypt_password(pswd)
-        self.db.add_vault(self.user[0], site, encrypted, login_user)
-        print("✅ Password saved!")
+        try:
+            encrypted = encrypt_password(pswd)
+            self.db.add_vault(self.user[0], site, encrypted, login_user)
+            print("✅ Password saved!")
+        except Exception as e:
+            print(f'{e}. Try Agaian later!')
 
     def viewCredential(self):
+        try:
+            creds = self.db.get_vault(self.user[0])
+        except Exception:
+            print('Failed to fetch this data. Try Again')
 
-        creds = self.db.get_vault(self.user[0])
         if not creds:
             print('No saved Credentials...!')
             return
-        
+
         for i in creds:
-            print(f"site : {i[0]}, username : {i[1]}, password : {decrypt_password(i[2])}")
+            try:
+                decrypted = decrypt_password(i[2])
+            except Exception:
+                decrypted = '[Decryption failed]'
+
+            print(
+                f'Site: {i[0]}, '
+                f'Username: {i[1]}, '
+                f'Password: {decrypted}'
+            )
     
     def deleteCredential(self):
 
-        site = input('Enter site name you want to delete: ')
-        self.db.delete_vault(self.user[0], site)
-        print(f'site : {site} has been deleted.')
-        return
-                
+        while True:
+            site = input('Enter site name you want to delete: ')
+            if site:
+                break
+            print('Site name cannot be empty!')
+
+        try:
+            deleted = self.db.delete_vault(self.user[0], site)
+            if deleted == 0:
+                print('No such site found!')
+            else:
+                print(f'site : {site} has been deleted.')
+        except Exception as e:
+            print('Database error..Try Again later!')
+
     def menu(self):
+        
         while True:
             print('\nPress 1 to Add Credential.')
             print('Press 2 to see Credential(s).')

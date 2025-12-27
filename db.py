@@ -42,4 +42,5 @@ class Database:
         return cur.fetchall()
     
     def delete_vault(self, user_id, site):
-        self.execute('DELETE FROM vault WHERE user_id = %s and site_name = %s', (user_id, site))
+        cur = self.execute('DELETE FROM vault WHERE user_id = %s and site_name = %s', (user_id, site))
+        return cur.rowcount()
